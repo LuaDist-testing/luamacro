@@ -1,15 +1,15 @@
 -- This file was automatically generated for the LuaDist project.
 
 package = "luamacro"
-version = "2.4-2"
+version = "2.5.0-1"
 -- LuaDist source
 source = {
-  tag = "2.4-2",
+  tag = "2.5.0-1",
   url = "git://github.com/LuaDist-testing/luamacro.git"
 }
 -- Original source
 -- source = {
---    url = "http://stevedonovan.github.com/files/luamacro-2.4.zip",
+--    url = "http://stevedonovan.github.com/files/luamacro-2.5.0.zip",
 --    dir = "LuaMacro"
 -- }
 description = {
@@ -46,7 +46,8 @@ build = {
       ['macro.lib.test'] = "./macro/lib/test.lua",
       ['macro.module'] = "./macro/module.lua",
       ['macro.try'] = "./macro/try.lua",
-      ['macro.with'] = "./macro/with.lua"
+      ['macro.with'] = "./macro/with.lua",
+      ['macro.ifelse'] = "./macro/ifelse.lua"
    },
    copy_directories = {
       "tests"

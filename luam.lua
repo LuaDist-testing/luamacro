@@ -1,4 +1,3 @@
-#!/usr/bin/env lua
 --[[--
 Front end for LuaMacro, a Lua macro preprocessor.
 
@@ -11,34 +10,43 @@ The package loader is modified so that `require 'mod'` will preprocess `mod` if 
 
 Dumping is the only action available when preprocessing C code with `-C`.
 
+##Usage
+
+    LuaMacro 2.3.0, a Lua macro preprocessor and runner
+        -l  require a library
+        -e  statement to be executed
+        -c  error context to be shown (default 2)
+        -d  dump preprocessed output to stdout
+        -C  C lexer
+        -N  No #line directives when generating C
+        -i  interactive prompt
+        <input>    Lua source file
+
 @script luam
 ]]
 
 -- adjust the path so that this script can see the macro package
 local path = arg[0]:gsub('[^/\\]+$','')
-package.path = package.path .. ';' .. path .. '?.lua;'..path .. 'macro/?.lua'
+package.path = path .. '?.lua;'..path .. 'macro/?.lua;' .. package.path
 local macro = require 'macro'
 require 'macro.builtin'
 
 --- Using luam.
 -- @usage follows
 local usage = [[
-LuaMacro 2.5.0, a Lua macro preprocessor and runner
+LuaMacro 2.3.0, a Lua macro preprocessor and runner
     -l  require a library
     -e  statement to be executed
-    -V  set a variable (-VX or -VY=1)
     -c  error context to be shown (default 2)
     -d  dump preprocessed output to stdout
-    -o  write to this file
     -C  C lexer
     -N  No #line directives when generating C
     -i  interactive prompt
-    -v  verbose error trace
     <input>    Lua source file
 ]]
 
 -- parsing the args, the hard way:
-local takes_value = {l = '', e = '', c = 2, o = '',V = ';'}
+local takes_value = {l = '', e = '', c = 2}
 
 local args = {}
 local idx,i = 1,1
@@ -60,8 +68,6 @@ while i <= #arg do
         local def = takes_value[flag]
         if type(def) == 'number' then
             val = tonumber(val)
-        elseif def == ';' and args[flag] then
-            val = args[flag]..';'..val
         end
         args[flag] = val or true
     else
@@ -94,12 +100,12 @@ end
 
 local function lookup_line (lno,li)
     for i = 1,#li-1 do
-        --print(li[i].il,li[i].ol,lno,'match')
+        --print(li[i].il,li[i].ol)
         if lno < li[i+1].ol then
             return li[i].il + (lno - li[i].ol) - 1
         end
     end
-    return li[#li].il + (lno - li[#li].ol) - 1
+    return li[#li].il + lno - 1
 end
 
 -- iterating over all lines in a string can be awkward;
@@ -118,6 +124,7 @@ end
 
 local function fix_error_trace (err,li)
     local strname,lno = err:match '%[string "(%S+)"%]:(%d+)'
+    --print(strname,lno)
     local ino
     if strname then
         lno = tonumber(lno)
@@ -167,7 +174,7 @@ local function subst (ins,name)
     if args.C then
         C = args.N and true or 'line'
     end
-    return macro.substitute_tostring(ins,name,C,args.v)
+    return macro.substitute_tostring(ins,name,C)
 end
 
 local function subst_runstring (ins,name,...)
@@ -176,14 +183,8 @@ local function subst_runstring (ins,name,...)
         io.stderr:write(li,'\n')
         os.exit(1)
     end
-    if args.d or args.C or args.o ~= '' then
-        if args.o == '' then
-            print(buf)
-        else
-            local f = io.open(args.o,'w')
-            f:write(buf)
-            f:close()
-        end
+    if args.d or args.C then
+        print(buf)
     else
         return runstring(buf,name,li,...)
     end
@@ -217,7 +218,7 @@ end
 
 local function interactive_loop ()
     os.execute(arg[-1]..' -v') -- for the Lua copyright
-    print 'Lua Macro 2.5.0 Copyright (C) 2007-2011 Steve Donovan'
+    print 'Lua Macro 2.3.0 Copyright (C) 2007-2011 Steve Donovan'
 
     local function readline()
         io.write(_PROMPT or '> ')
@@ -252,19 +253,6 @@ end
 macro.set_package_loader()
 
 if args.l ~= '' then require(args.l) end
-
-if args.V ~= ';' then
-    for varset in args.V:gmatch '([^;]+)' do
-        local sym,val = varset:match '([^=]+)=(.+)'
-        if not sym then
-            sym = varset
-            val = true
-        end
-        _G[sym] = val
-    end
-end
-
-require 'macro.ifelse'
 
 if args.e ~= '' then
     subst_runstring(args.e,"<temp>")
