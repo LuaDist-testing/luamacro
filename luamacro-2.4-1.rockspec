@@ -1,17 +1,17 @@
 -- This file was automatically generated for the LuaDist project.
 
 package = "luamacro"
-version = "2.3-1"
+version = "2.4-1"
 
 -- LuaDist source
 source = {
-  tag = "2.3-1",
+  tag = "2.4-1",
   url = "git://github.com/LuaDist-testing/luamacro.git"
 }
 -- Original source
 -- source = {
 --   dir = "LuaMacro",
---   url = "http://stevedonovan.github.com/files/luamacro-2.3.zip"
+--   url = "http://stevedonovan.github.com/files/luamacro-2.4.zip"
 -- }
 
 description = {

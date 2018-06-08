@@ -13,7 +13,7 @@ Dumping is the only action available when preprocessing C code with `-C`.
 
 ##Usage
 
-    LuaMacro 2.3.0, a Lua macro preprocessor and runner
+    LuaMacro 2.4.0, a Lua macro preprocessor and runner
         -l  require a library
         -e  statement to be executed
         -c  error context to be shown (default 2)
@@ -28,26 +28,28 @@ Dumping is the only action available when preprocessing C code with `-C`.
 
 -- adjust the path so that this script can see the macro package
 local path = arg[0]:gsub('[^/\\]+$','')
-package.path = path .. '?.lua;'..path .. 'macro/?.lua;' .. package.path
+package.path = package.path .. ';' .. path .. '?.lua;'..path .. 'macro/?.lua'
 local macro = require 'macro'
 require 'macro.builtin'
 
 --- Using luam.
 -- @usage follows
 local usage = [[
-LuaMacro 2.3.0, a Lua macro preprocessor and runner
+LuaMacro 2.4.0, a Lua macro preprocessor and runner
     -l  require a library
     -e  statement to be executed
     -c  error context to be shown (default 2)
     -d  dump preprocessed output to stdout
+    -o  write to this file
     -C  C lexer
     -N  No #line directives when generating C
     -i  interactive prompt
+    -v  verbose error trace
     <input>    Lua source file
 ]]
 
 -- parsing the args, the hard way:
-local takes_value = {l = '', e = '', c = 2}
+local takes_value = {l = '', e = '', c = 2, o = ''}
 
 local args = {}
 local idx,i = 1,1
@@ -101,12 +103,12 @@ end
 
 local function lookup_line (lno,li)
     for i = 1,#li-1 do
-        --print(li[i].il,li[i].ol)
+        --print(li[i].il,li[i].ol,lno,'match')
         if lno < li[i+1].ol then
             return li[i].il + (lno - li[i].ol) - 1
         end
     end
-    return li[#li].il + lno - 1
+    return li[#li].il + (lno - li[#li].ol) - 1
 end
 
 -- iterating over all lines in a string can be awkward;
@@ -125,7 +127,6 @@ end
 
 local function fix_error_trace (err,li)
     local strname,lno = err:match '%[string "(%S+)"%]:(%d+)'
-    --print(strname,lno)
     local ino
     if strname then
         lno = tonumber(lno)
@@ -175,7 +176,7 @@ local function subst (ins,name)
     if args.C then
         C = args.N and true or 'line'
     end
-    return macro.substitute_tostring(ins,name,C)
+    return macro.substitute_tostring(ins,name,C,args.v)
 end
 
 local function subst_runstring (ins,name,...)
@@ -184,8 +185,14 @@ local function subst_runstring (ins,name,...)
         io.stderr:write(li,'\n')
         os.exit(1)
     end
-    if args.d or args.C then
-        print(buf)
+    if args.d or args.C or args.o ~= '' then
+        if args.o == '' then
+            print(buf)
+        else
+            local f = io.open(args.o,'w')
+            f:write(buf)
+            f:close()
+        end
     else
         return runstring(buf,name,li,...)
     end

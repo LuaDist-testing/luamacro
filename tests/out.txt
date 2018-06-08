@@ -1,0 +1,491 @@
+{
+  "// luam -C -lcexport dll.c",
+  [[
+
+]],
+  "// expands this file into pukka C and creates/updates dll.h",
+  [[
+
+
+]],
+  "#",
+  "include",
+  " ",
+  "\"dll.h\"",
+  [[
+
+
+]]
+}
+ii	10
+{
+  "// luam -C -lcexport dll.c",
+  [[
+
+]],
+  "// expands this file into pukka C and creates/updates dll.h",
+  [[
+
+
+]],
+  "#",
+  "include",
+  " ",
+  "\"dll.h\"",
+  [[
+
+
+]],
+  "}",
+  [[
+
+
+]],
+  "// yes we could use #define here, but it's sometimes useful to have another level",
+  [[
+
+]],
+  "// of macro substitution",
+  [[
+
+]],
+  [[
+
+
+]],
+  "// Plus, LuaMacro can do operator replacements. This is Ruby-style 'field' access",
+  [[
+
+]],
+  [[
+
+
+]],
+  " ",
+  "MyStruct",
+  " ",
+  "*",
+  "create",
+  "(",
+  ")",
+  " "
+}
+ii	28
+{
+  "// luam -C -lcexport dll.c",
+  [[
+
+]],
+  "// expands this file into pukka C and creates/updates dll.h",
+  [[
+
+
+]],
+  "#",
+  "include",
+  " ",
+  "\"dll.h\"",
+  [[
+
+
+]],
+  "}",
+  [[
+
+
+]],
+  "// yes we could use #define here, but it's sometimes useful to have another level",
+  [[
+
+]],
+  "// of macro substitution",
+  [[
+
+]],
+  [[
+
+
+]],
+  "// Plus, LuaMacro can do operator replacements. This is Ruby-style 'field' access",
+  [[
+
+]],
+  [[
+
+
+]],
+  " ",
+  "MyStruct",
+  " ",
+  "*",
+  "create",
+  "(",
+  ")",
+  " ",
+  "{",
+  [[
+
+    ]],
+  "return",
+  " ",
+  " ",
+  "(",
+  "MyStruct",
+  "*",
+  ")",
+  "malloc",
+  "(",
+  "sizeof",
+  "(",
+  "MyStruct",
+  ")",
+  ")",
+  ";",
+  [[
+
+]],
+  "}",
+  [[
+
+
+]],
+  [[
+
+
+]],
+  " ",
+  "int",
+  " ",
+  "one",
+  "(",
+  "MyStruct",
+  " ",
+  "*",
+  "self",
+  ")",
+  " "
+}
+ii	60
+{
+  "// luam -C -lcexport dll.c",
+  [[
+
+]],
+  "// expands this file into pukka C and creates/updates dll.h",
+  [[
+
+
+]],
+  "#",
+  "include",
+  " ",
+  "\"dll.h\"",
+  [[
+
+
+]],
+  "}",
+  [[
+
+
+]],
+  "// yes we could use #define here, but it's sometimes useful to have another level",
+  [[
+
+]],
+  "// of macro substitution",
+  [[
+
+]],
+  [[
+
+
+]],
+  "// Plus, LuaMacro can do operator replacements. This is Ruby-style 'field' access",
+  [[
+
+]],
+  [[
+
+
+]],
+  " ",
+  "MyStruct",
+  " ",
+  "*",
+  "create",
+  "(",
+  ")",
+  " ",
+  "{",
+  [[
+
+    ]],
+  "return",
+  " ",
+  " ",
+  "(",
+  "MyStruct",
+  "*",
+  ")",
+  "malloc",
+  "(",
+  "sizeof",
+  "(",
+  "MyStruct",
+  ")",
+  ")",
+  ";",
+  [[
+
+]],
+  "}",
+  [[
+
+
+]],
+  [[
+
+
+]],
+  " ",
+  "int",
+  " ",
+  "one",
+  "(",
+  "MyStruct",
+  " ",
+  "*",
+  "self",
+  ")",
+  " ",
+  "{",
+  [[
+
+    ]],
+  "return",
+  " ",
+  "self",
+  "->",
+  "ival",
+  " ",
+  "+",
+  " ",
+  "1",
+  [[
+
+]],
+  "}",
+  [[
+
+
+]],
+  " ",
+  "int",
+  " ",
+  "two",
+  "(",
+  "MyStruct",
+  " ",
+  "*",
+  "self",
+  ")",
+  " "
+}
+ii	85
+{
+  "// luam -C -lcexport dll.c",
+  [[
+
+]],
+  "// expands this file into pukka C and creates/updates dll.h",
+  [[
+
+
+]],
+  "#",
+  "include",
+  " ",
+  "\"dll.h\"",
+  [[
+
+
+]],
+  "}",
+  [[
+
+
+]],
+  "// yes we could use #define here, but it's sometimes useful to have another level",
+  [[
+
+]],
+  "// of macro substitution",
+  [[
+
+]],
+  [[
+
+
+]],
+  "// Plus, LuaMacro can do operator replacements. This is Ruby-style 'field' access",
+  [[
+
+]],
+  [[
+
+
+]],
+  " ",
+  "MyStruct",
+  " ",
+  "*",
+  "create",
+  "(",
+  ")",
+  " ",
+  "{",
+  [[
+
+    ]],
+  "return",
+  " ",
+  " ",
+  "(",
+  "MyStruct",
+  "*",
+  ")",
+  "malloc",
+  "(",
+  "sizeof",
+  "(",
+  "MyStruct",
+  ")",
+  ")",
+  ";",
+  [[
+
+]],
+  "}",
+  [[
+
+
+]],
+  [[
+
+
+]],
+  " ",
+  "int",
+  " ",
+  "one",
+  "(",
+  "MyStruct",
+  " ",
+  "*",
+  "self",
+  ")",
+  " ",
+  "{",
+  [[
+
+    ]],
+  "return",
+  " ",
+  "self",
+  "->",
+  "ival",
+  " ",
+  "+",
+  " ",
+  "1",
+  [[
+
+]],
+  "}",
+  [[
+
+
+]],
+  " ",
+  "int",
+  " ",
+  "two",
+  "(",
+  "MyStruct",
+  " ",
+  "*",
+  "self",
+  ")",
+  " ",
+  "{",
+  [[
+
+    ]],
+  "return",
+  " ",
+  "2",
+  "*",
+  "self",
+  "->",
+  "ival",
+  ";",
+  [[
+
+]],
+  "}",
+  [[
+
+
+]],
+  " ",
+  "void",
+  " ",
+  "set",
+  "(",
+  "MyStruct",
+  " ",
+  "*",
+  "self",
+  ",",
+  "int",
+  " ",
+  "i",
+  ")",
+  " "
+}
+ii	113
+// luam -C -lcexport dll.c
+// expands this file into pukka C and creates/updates dll.h
+
+#include "dll.h"
+
+}
+
+// yes we could use #define here, but it's sometimes useful to have another level
+// of macro substitution
+
+
+// Plus, LuaMacro can do operator replacements. This is Ruby-style 'field' access
+
+
+ MyStruct *create() {
+    return  (MyStruct*)malloc(sizeof(MyStruct));
+}
+
+
+
+ int one(MyStruct *self) {
+    return self->ival + 1
+}
+
+ int two(MyStruct *self) {
+    return 2*self->ival;
+}
+
+ void set(MyStruct *self,int i) {
+    self->ival = i;
+}
+
+
+
