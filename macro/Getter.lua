@@ -2,8 +2,8 @@
 -- argument `get` of a macro substitution function is of this type.
 --
 --    M.define ('\\',function(get,put)
---        local args, body = get:names('('), get:list()
---        return put:keyword 'function' '(' : names(args) ')' :
+--        local args, body = get:idens('('), get:list()
+--        return put:keyword 'function' '(' : idens(args) ')' :
 --             keyword 'return' : list(body) : space() : keyword 'end'
 --    end)
 --
@@ -51,7 +51,7 @@ function Getter.scan_iter (tlist)
         if k ~= nil then
             k = i + k
             if k < 1 or k > n then return nil end
-            return tokens[k]
+            return tlist[k]
         end
         local tv = tlist[i]
         if tv == nil then return nil end
@@ -76,6 +76,46 @@ end
 
 local TL,LTL = TokenList.new, TokenList.new_list
 
+
+local function tappend (tl,t,val)
+    val = val or t
+    append(tl,{t,val})
+end
+
+--- get a balanced block.
+-- Typically for grabbing up to an `end` keyword including any nested
+-- `if`, `do` or `function` blocks with their own `end` keywords.
+-- @param tok the token stream
+-- @param begintokens set of tokens requiring their own nested *endtokens*
+--   (default: `{['do']=true,['function']=true,['if']=true}`)
+-- @param endtokens set of tokens ending a block (default:`{['end']=true}`)
+-- @return list of tokens
+-- @return block end token in form `{type,value}`
+-- @usage
+--   -- copy a balanced table constructor
+--   get:expecting '{'
+--   put '{':tokens (get:block ({['{']=true}, {['}']=true}) '}')
+function Getter.block(tok,begintokens,endtokens)
+    begintokens = begintokens or {['do']=true,['function']=true,['if']=true}
+    endtokens = endtokens or {['end']=true}
+    local level = 1 -- used to count expected matching `endtokens`
+    local tl = TL()
+    local token,value
+    repeat
+        token,value = tok()
+        if not token then return nil,'unexpected end of block' end
+        if begintokens[value] then
+	    level = level + 1
+        elseif endtokens[value] then
+	    level = level - 1
+        end
+	if level > 0 then  -- final end token is returned separately
+            tappend(tl,token,value)
+	end
+    until level == 0
+    return tl,tok_new{token,value}
+end
+
 --- get a delimited list of token lists.
 -- Typically used for grabbing argument lists like ('hello',a+1,fred(c,d)); will count parens
 -- so that the delimiter (usually a comma) is ignored inside sub-expressions. You must have
@@ -93,10 +133,6 @@ function Getter.list(tok,endtoken,delim)
     local parm_values = LTL()
     local level = 1 -- used to count ( and )
     local tl = TL()
-    local function tappend (tl,t,val)
-        val = val or t
-        append(tl,{t,val})
-    end
     local is_end
     if type(endtoken) == 'function' then
         is_end = endtoken
@@ -172,36 +208,56 @@ function Getter.line(tok)
     end)
 end
 
+
+local function prettyprint (t, v)
+    v = v:gsub ("\n", "\\n")
+    if t == "string" then
+        if #v > 16 then v = v:sub(1,12).."..."..v:sub(1,1) end
+        return t.." "..v
+    end
+    if #v > 16 then v = v:sub(1,12).."..." end
+    if t == "space" or t == "comment" or t == "keyword" then
+        return t.." '"..v.."'"
+    elseif t == v then
+        return "'"..v.."'"
+    else
+        return t.." "..v
+    end
+end
+
 --- get the next identifier token.
 -- (will be an error if the token has wrong type)
--- @return name
-function Getter.name(tok)
+-- @return identifier name
+function Getter.iden(tok)
     local t,v = tnext(tok)
-    M.assert(t == 'iden','expecting name')
+    M.assert(t == 'iden','expecting identifier, got '..prettyprint(t,v))
     return v
 end
+
+Getter.name = Getter.iden -- backwards compatibility!
 
 --- get the next number token.
 -- (will be an error if the token has wrong type)
 -- @return converted number
 function Getter.number(tok)
     local t,v = tnext(tok)
-    M.assert(t == 'number','expecting number')
+    M.assert(t == 'number','expecting number, got '..prettyprint(t,v))
     return tonumber(v)
 end
 
---- get a delimited list of names.
+--- get a delimited list of identifiers.
 -- works like list.
 -- @param tok the token stream
 -- @param endt the end token (default ')')
 -- @param delim the delimiter (default ',')
 -- @see list
-function Getter.names(tok,endt,delim)
+function Getter.idens(tok,endt,delim)
     local ltl,err = tok:list(endt,delim)
-    if not ltl then error('get_names: '..err) end
+    if not ltl then error('idens: '..err) end
     local names = {}
     -- list() will return {{}} for an empty list of tlists
-    for i,tl in ipairs(ltl) do
+    for i = 1,#ltl do
+	local tl = ltl[i]
         local tv = tl[1]
         if tv then
             if tv[1] == 'space' then tv = tl[2] end
@@ -210,6 +266,8 @@ function Getter.names(tok,endt,delim)
     end
     return names, err
 end
+
+Getter.names = Getter.idens -- backwards compatibility!
 
 --- get the next string token.
 -- (will be an error if the token has wrong type)
@@ -227,9 +285,9 @@ end
 -- @usage  get:expecting ('iden','bonzo')
 function Getter.expecting (tok,type,value)
     local t,v = tnext(tok)
-    if t ~= type then M.error ("expected "..type.." got "..t) end
+    if t ~= type then M.error ("expected "..type.." got "..prettyprint(t,v)) end
     if value then
-        if v ~= value then M.error("expected "..value.." got "..v) end
+        if v ~= value then M.error("expected "..value.." got "..prettyprint(t,v)) end
     end
     return t,v
 end

@@ -129,7 +129,7 @@ function M.define(macstr,subst_fn)
     end
     t = tok()
     if t == '(' then
-        parms = Getter.new(tok):names()
+        parms = Getter.new(tok):idens()
     end
     mtbl[macname] = {
         name = macname,
@@ -322,8 +322,7 @@ M.please_throw = false
 --- macro error messages.
 -- @param msg the message: will also have file:line.
 function M.error(msg)
-    M.please_throw = true
-    msg = M.filename..':'..lexer.line..' '..msg
+    msg = M.filename..':'..lexer.line..': '..msg
     if M.please_throw then
         error(msg,2)
     else
@@ -435,20 +434,36 @@ function M.substitute(src,name, use_c)
 
     local getter = Getter.new(get)
 
-    function getter:peek (k,dont_skip)
-        k = k - 1
-        local token = tok(k)
-        if not token then return nil,'EOS' end
-        local t,v = token[1], token[2]
-        if not dont_skip then
-            local skip = k < 0 and -1 or 1
-            while t == 'space' do
-                k = k + skip
-                token = tok(k)
-                if not tok then return nil,'EOS' end
-                t,v = token[1], token[2]
-            end
+    --- get a list of consecutive matching tokens.
+    -- @param get token fetching function
+    -- @param accept set of token types (default: `{space=true,comment=true}`)
+    function getter.matching (get, accept)
+        accept = accept or {space=true, comment=true}
+        local tl = TokenList.new()
+        local t,v = get:peek(1, true)
+        while accept[t] do
+            t,v = get ()
+            append(tl, {t, v})
+            t,v = get:peek(1, true)
         end
+        return tl
+    end
+
+    function getter:peek (offset,dont_skip)
+        local step = offset < 0 and -1 or 1 -- passing offset 0 is undefined
+        local k = 0
+        local token, t, v
+        repeat
+            while true do
+                token = tok (k)
+                if not token then return nil, 'EOS' end
+                t,v = token[1], token[2]
+                if dont_skip or (t ~= 'space' and t ~= 'comment') then break end
+                k = k + 1
+            end
+            offset = offset - step
+            k = k + step
+        until offset == 0
         return t,v,k+1
     end
 
@@ -463,7 +478,7 @@ function M.substitute(src,name, use_c)
     end
 
     function getter:placeholder (put)
-        put:name '/MARK?/'
+        put:iden '/MARK?/'
         return ii
     end
 
